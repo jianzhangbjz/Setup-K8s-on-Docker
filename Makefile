@@ -1,6 +1,8 @@
 # Kubernetes cluster setups
 
-ip=9.186.50.250
+domain=local
+dns_ip=9.12.247.141
+ip=9.12.247.141
 log_level=3
 etcd_server_port=2380
 etcd_client_port=2379
@@ -99,15 +101,26 @@ run-kubelet-local:
 	kubelet \
 	--logtostderr=false \
 	--v=${log_level} \
-	--allow-privileged=false \
+	--allow-privileged=true \
 	--log_dir=/var/log/kubernetes \
 	--address=0.0.0.0 \
 	--port=${kubelet_port} \
 	--hostname_override=${ip} \
 	--api_servers=http://${ip}:${apiserver_port} \
 	--cpu-cfs-quota=false \
-	--cluster-dns=8.8.8.8 \
+	--cluster-dns=${dns_ip} \
+	--cluster-domain=${domain} \
 	> /dev/null 2>&1 &
+
+run-kube-dns:
+	kube-dns \
+	--dns-port=53 \
+	--domain=${domain} \
+	--kube-master-url="http://${ip}:${apiserver_port}" \
+	--logtostderr=false \
+	--log_dir=/var/log/kubernetes \
+	> /dev/null 2>&1 &
+
 sleep1:
 	sleep 30
 sleep2:
