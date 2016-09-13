@@ -89,16 +89,20 @@ run-scheduler-local:
 	--log_dir=/var/log/kubernetes \
 
 run-proxy-local:
-	kube-proxy \
+	docker run -d --privileged --net=host --name kube-proxy gcr.io/google_containers/kube-proxy:v1.0 kube-proxy \
 	--logtostderr=false \
 	--v=${log_level} \
 	--log_dir=/var/log/kubernetes \
 	--hostname_override=${ip} \
 	--master=http://${ip}:${apiserver_port} \
-	> /dev/null 2>&1 &
 
 run-kubelet-local:
-	kubelet \
+	docker run -d --privileged --net=host --pid=host \
+        -v /sys:/sys:ro \
+	-v /var/run:/var/run:rw \
+	-v /var/lib/kubelet:/var/lib/kubelet \
+	-v /var/lib/docker/:/var/lib/docker:rw \
+        --name kubelet gcr.io/google_containers/kubelet:latest /kubelet \
 	--logtostderr=false \
 	--v=${log_level} \
 	--allow-privileged=true \
@@ -110,7 +114,6 @@ run-kubelet-local:
 	--cpu-cfs-quota=false \
 	--cluster-dns=${dns_ip} \
 	--cluster-domain=${domain} \
-	> /dev/null 2>&1 &
 
 run-kube-dns:
 	kube-dns \
