@@ -23,7 +23,7 @@ my-nginx       10.0.0.239   <pending>     80/TCP     56m
 redis-master   10.0.0.245   <none>        6379/TCP   18h
 ```
 # Authentication
-Then, enter the test container, `docker exec -ti 7201231bb953 /bin/bash`
+Then, enter the test container, `docker exec -ti 7201231bb953 /bin/bash`, also can check it via `cat /etc/resolv.conf`.
 ```
 root@test:/# apt-get install curl
 root@test:/# curl http://my-nginx:80
