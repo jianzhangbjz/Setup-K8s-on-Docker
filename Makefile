@@ -1,8 +1,10 @@
 # Kubernetes cluster setups
 
-domain=local
-dns_ip=9.12.247.141
-ip=9.12.247.141
+#DNS domain
+domain=cluster.local.
+
+dns_ip=9.186.50.250
+ip=9.186.50.250
 log_level=3
 etcd_server_port=2380
 etcd_client_port=2379
@@ -14,9 +16,9 @@ kill-all: kill-cluster-local detach-flannel-local kill-etcd-local
 
 run-all: run-etcd-local setup-flannel-local run-cluster-local
 
-run-cluster-local: run-apiserver-local sleep2 run-controller-manager-local sleep3 run-scheduler-local sleep4 run-proxy-local sleep1 run-kubelet-local
+run-cluster-local: run-apiserver-local sleep2 run-controller-manager-local sleep3 run-scheduler-local sleep4 run-proxy-local sleep1 run-kubelet-local run-kube-dns
 
-kill-cluster-local: kill-apiserver-local kill-controller-manager-local kill-scheduler-local kill-proxy-local kill-kubelet-local
+kill-cluster-local: kill-apiserver-local kill-controller-manager-local kill-scheduler-local kill-proxy-local kill-kubelet-local kill-kubedns-local
 
 setup-flannel-local: run-flannel setup-flannel-docker
 
@@ -53,6 +55,9 @@ kill-proxy-local:
 
 kill-kubelet-local:
 	killall kubelet
+
+kill-kubedns-local:
+	killall kube-dns
 
 run-etcd-local:
 	docker run -d -p 2379:2379 -p 2380:2380 --name etcd gcr.io/google_containers/etcd-amd64:2.2.5 etcd \
@@ -122,10 +127,10 @@ run-kube-dns:
 	> /dev/null 2>&1 &
 
 sleep1:
-	sleep 30
+	sleep 5
 sleep2:
-	sleep 30
+	sleep 5
 sleep3:
-	sleep 30
+	sleep 5
 sleep4:
-	sleep 30	
+	sleep 5	
