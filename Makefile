@@ -70,7 +70,7 @@ run-etcd-local:
 	--data-dir=/var/lib/etcd \
 
 run-apiserver-local:
-	docker run -d -p 8080:8080 --name apiserver gcr.io/google_containers/kube-apiserver:v1.0 kube-apiserver \
+	nohup kube-apiserver \
 	--service-cluster-ip-range=${service_ip_range} \
 	--insecure-bind-address=0.0.0.0 \
 	--insecure-port=${apiserver_port} \
@@ -78,23 +78,25 @@ run-apiserver-local:
 	--v=${log_level} \
 	--logtostderr=false \
 	--etcd_servers=http://${ip}:2379 \
-	--allow_privileged=false \
+	--allow_privileged=false &
 
 run-controller-manager-local:
-	docker run -d --name controller-manager gcr.io/google_containers/kube-controller-manager:v1.0 kube-controller-manager  \
+	nohup kube-controller-manager  \
 	--v=${log_level} \
 	--logtostderr=false \
 	--log_dir=/var/log/kubernetes \
-	--master=${ip}:${apiserver_port} \
+	--master=${ip}:${apiserver_port} &
 
 run-scheduler-local:
-	docker run -d --name scheduler gcr.io/google_containers/kube-scheduler:v1.0 kube-scheduler \
+	nohup kube-scheduler \
 	--master=${ip}:${apiserver_port} \
 	--v=${log_level} \
-	--log_dir=/var/log/kubernetes \
+    --feature-gates AllAlpha=true \
+	--logtostderr=false \
+	--log_dir=/var/log/kubernetes &
 
 run-proxy-local:
-	kube-proxy \
+	nohup kube-proxy \
 	--logtostderr=false \
 	--v=${log_level} \
 	--log_dir=/var/log/kubernetes \
