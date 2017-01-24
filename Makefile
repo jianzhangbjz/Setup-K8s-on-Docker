@@ -1,8 +1,8 @@
 # Kubernetes cluster setups
 
 domain=local
-dns_ip=9.12.247.141
-ip=9.12.247.141
+dns_ip=9.186.50.250
+ip=9.186.50.250
 log_level=3
 etcd_server_port=2380
 etcd_client_port=2379
@@ -65,7 +65,7 @@ run-etcd-local:
 	--data-dir=/var/lib/etcd \
 
 run-apiserver-local:
-	docker run -d -p 8080:8080 --name apiserver gcr.io/google_containers/kube-apiserver:v1.0 kube-apiserver \
+	docker run -d -p 8080:8080 --name apiserver gcr.io/google_containers/hyperkube-amd64:gpu-test /hyperkube apiserver \
 	--service-cluster-ip-range=${service_ip_range} \
 	--insecure-bind-address=0.0.0.0 \
 	--insecure-port=${apiserver_port} \
@@ -76,20 +76,20 @@ run-apiserver-local:
 	--allow_privileged=false \
 
 run-controller-manager-local:
-	docker run -d --name controller-manager gcr.io/google_containers/kube-controller-manager:v1.0 kube-controller-manager  \
+	docker run -d --name controller-manager gcr.io/google_containers/hyperkube-amd64:gpu-test /hyperkube controller-manager  \
 	--v=${log_level} \
 	--logtostderr=false \
 	--log_dir=/var/log/kubernetes \
 	--master=${ip}:${apiserver_port} \
 
 run-scheduler-local:
-	docker run -d --name scheduler gcr.io/google_containers/kube-scheduler:v1.0 kube-scheduler \
+	docker run -d --name scheduler gcr.io/google_containers/hyperkube-amd64:gpu-test /hyperkube scheduler \
 	--master=${ip}:${apiserver_port} \
 	--v=${log_level} \
 	--log_dir=/var/log/kubernetes \
 
 run-proxy-local:
-	docker run -d --privileged --net=host --name kube-proxy gcr.io/google_containers/kube-proxy:v1.0 kube-proxy \
+	docker run -d --privileged --net=host --name kube-proxy gcr.io/google_containers/hyperkube-amd64:gpu-test /hyperkube proxy \
 	--logtostderr=false \
 	--v=${log_level} \
 	--log_dir=/var/log/kubernetes \
@@ -102,7 +102,7 @@ run-kubelet-local:
 	-v /var/run:/var/run:rw \
 	-v /var/lib/kubelet:/var/lib/kubelet \
 	-v /var/lib/docker/:/var/lib/docker:rw \
-        --name kubelet gcr.io/google_containers/kubelet:latest /kubelet \
+	--name kubelet gcr.io/google_containers/hyperkube-amd64:gpu-test /hyperkube kubelet \
 	--logtostderr=false \
 	--v=${log_level} \
 	--allow-privileged=true \
@@ -125,10 +125,10 @@ run-kube-dns:
 	> /dev/null 2>&1 &
 
 sleep1:
-	sleep 30
+	sleep 5
 sleep2:
-	sleep 30
+	sleep 5
 sleep3:
-	sleep 30
+	sleep 5
 sleep4:
-	sleep 30	
+	sleep 5	
