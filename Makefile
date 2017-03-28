@@ -5,7 +5,7 @@ domain=cluster.local.
 
 dns_ip=9.186.50.250
 ip=9.186.50.250
-log_level=3
+log_level=5
 etcd_server_port=2380
 etcd_client_port=2379
 apiserver_port=8080
@@ -60,7 +60,7 @@ kill-kubedns-local:
 	killall kube-dns
 
 run-etcd-local:
-	docker run -d -p 2379:2379 -p 2380:2380 --name etcd gcr.io/google_containers/etcd-amd64:2.2.5 etcd \
+	docker run -d -p 2379:2379 -p 2380:2380 --name etcd gcr.io/google_containers/etcd-amd64:3.0.17 etcd \
     --name etcd0 \
 	--initial-advertise-peer-urls http://${ip}:${etcd_server_port} \
 	--initial-cluster etcd0=http://${ip}:${etcd_server_port} \
@@ -117,6 +117,7 @@ run-kubelet-local:
 	--cpu-cfs-quota=false \
 	--cluster-dns=${dns_ip} \
 	--cluster-domain=${domain} \
+	--feature-gates=Accelerators=true \
 	> /dev/null 2>&1 &
 
 run-kube-dns:
