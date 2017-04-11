@@ -1,8 +1,8 @@
 # Kubernetes cluster setups
 
 domain=local
-dns_ip=9.12.247.141
-ip=9.12.247.141
+dns_ip=9.186.50.250
+ip=9.186.50.250
 log_level=3
 etcd_server_port=2380
 etcd_client_port=2379
@@ -55,7 +55,7 @@ kill-kubelet-local:
 	killall kubelet
 
 run-etcd-local:
-	docker run -d -p 2379:2379 -p 2380:2380 --name etcd gcr.io/google_containers/etcd-amd64:2.2.5 etcd \
+	docker run -d -p 2379:2379 -p 2380:2380 --name etcd gcr.io/google_containers/etcd-amd64:3.0.17 etcd \
     --name etcd0 \
 	--initial-advertise-peer-urls http://${ip}:${etcd_server_port} \
 	--initial-cluster etcd0=http://${ip}:${etcd_server_port} \
@@ -65,7 +65,7 @@ run-etcd-local:
 	--data-dir=/var/lib/etcd \
 
 run-apiserver-local:
-	docker run -d -p 8080:8080 --name apiserver gcr.io/google_containers/kube-apiserver:v1.0 kube-apiserver \
+	docker run -d -p 8080:8080 --name apiserver gcr.io/google_containers/hyperkube-amd64:v1.6.1-gpu /hyperkube kube-apiserver \
 	--service-cluster-ip-range=${service_ip_range} \
 	--insecure-bind-address=0.0.0.0 \
 	--insecure-port=${apiserver_port} \
@@ -76,20 +76,20 @@ run-apiserver-local:
 	--allow_privileged=false \
 
 run-controller-manager-local:
-	docker run -d --name controller-manager gcr.io/google_containers/kube-controller-manager:v1.0 kube-controller-manager  \
+	docker run -d --name controller-manager gcr.io/google_containers/hyperkube-amd64:v1.6.1-gpu /hyperkube kube-controller-manager  \
 	--v=${log_level} \
 	--logtostderr=false \
 	--log_dir=/var/log/kubernetes \
 	--master=${ip}:${apiserver_port} \
 
 run-scheduler-local:
-	docker run -d --name scheduler gcr.io/google_containers/kube-scheduler:v1.0 kube-scheduler \
+	docker run -d --name scheduler gcr.io/google_containers/hyperkube-amd64:v1.6.1-gpu /hyperkube kube-scheduler \
 	--master=${ip}:${apiserver_port} \
 	--v=${log_level} \
 	--log_dir=/var/log/kubernetes \
 
 run-proxy-local:
-	docker run -d --privileged --net=host --name kube-proxy gcr.io/google_containers/kube-proxy:v1.0 kube-proxy \
+	docker run -d --privileged --net=host --name kube-proxy gcr.io/google_containers/hyperkube-amd64:v1.6.1-gpu /hyperkube kube-proxy \
 	--logtostderr=false \
 	--v=${log_level} \
 	--log_dir=/var/log/kubernetes \
@@ -102,7 +102,9 @@ run-kubelet-local:
 	-v /var/run:/var/run:rw \
 	-v /var/lib/kubelet:/var/lib/kubelet \
 	-v /var/lib/docker/:/var/lib/docker:rw \
-        --name kubelet gcr.io/google_containers/kubelet:latest /kubelet \
+	-v /var/nvidia-docker:/usr/local/nvidia:ro \
+	--name kubelet gcr.io/google_containers/hyperkube-amd64:v1.6.1-gpu /bin/bash -c "ldconfig && /hyperkube kubelet \
+	--feature-gates Accelerators=true \
 	--logtostderr=false \
 	--v=${log_level} \
 	--allow-privileged=true \
@@ -113,7 +115,7 @@ run-kubelet-local:
 	--api_servers=http://${ip}:${apiserver_port} \
 	--cpu-cfs-quota=false \
 	--cluster-dns=${dns_ip} \
-	--cluster-domain=${domain} \
+	--cluster-domain=${domain} "
 
 run-kube-dns:
 	kube-dns \
@@ -125,10 +127,10 @@ run-kube-dns:
 	> /dev/null 2>&1 &
 
 sleep1:
-	sleep 30
+	sleep 3
 sleep2:
-	sleep 30
+	sleep 3
 sleep3:
-	sleep 30
+	sleep 3
 sleep4:
-	sleep 30	
+	sleep 3	
