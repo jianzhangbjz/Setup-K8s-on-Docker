@@ -106,6 +106,7 @@ run-proxy-local:
 
 run-kubelet-local:
 	kubelet \
+	--feature-gates Accelerators=true \
 	--logtostderr=false \
 	--v=${log_level} \
 	--allow-privileged=true \
@@ -117,7 +118,6 @@ run-kubelet-local:
 	--cpu-cfs-quota=false \
 	--cluster-dns=${dns_ip} \
 	--cluster-domain=${domain} \
-	--feature-gates=Accelerators=true \
 	> /dev/null 2>&1 &
 
 run-kube-dns:
