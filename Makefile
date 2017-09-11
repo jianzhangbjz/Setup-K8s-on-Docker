@@ -71,6 +71,7 @@ run-etcd-local:
 
 run-apiserver-local:
 	nohup kube-apiserver \
+    --admission-control=LimitRanger,ResourceQuota \
 	--service-cluster-ip-range=${service_ip_range} \
 	--insecure-bind-address=0.0.0.0 \
 	--insecure-port=${apiserver_port} \
@@ -78,6 +79,7 @@ run-apiserver-local:
 	--v=${log_level} \
 	--logtostderr=false \
 	--etcd_servers=http://${ip}:2379 \
+	--enable-swagger-ui=true \
 	--allow_privileged=false &
 
 run-controller-manager-local:
@@ -130,10 +132,10 @@ run-kube-dns:
 	> /dev/null 2>&1 &
 
 sleep1:
-	sleep 5
+	sleep 3
 sleep2:
-	sleep 5
+	sleep 3
 sleep3:
-	sleep 5
+	sleep 3
 sleep4:
-	sleep 5	
+	sleep 3	
